@@ -13,7 +13,7 @@ spec:
   serviceClaims:
     - name: db
       ref:
-        apiVersion: sql.tanzu.vmware.com/v1
+        apiVersion: services.apps.tanzu.vmware.com/v1alpha1
         kind: ResourceClaim
         name: customer-profile-database
   build:
