@@ -15,7 +15,7 @@ spec:
       ref:
         apiVersion: services.apps.tanzu.vmware.com/v1alpha1
         kind: ResourceClaim
-        name: customer-profile-database
+        name: customer-profile-db
   build:
     env:
       - name: BP_JVM_VERSION
