@@ -1,0 +1,41 @@
+apiVersion: carto.run/v1alpha1
+kind: Deliverable
+metadata:
+  creationTimestamp: "2022-10-27T03:44:13Z"
+  generation: 1
+  labels:
+    apis.apps.tanzu.vmware.com/register-api: "true"
+    app.kubernetes.io/component: deliverable
+    app.kubernetes.io/part-of: customer-profile
+    app.tanzu.vmware.com/deliverable-type: web
+    apps.tanzu.vmware.com/has-tests: "true"
+    apps.tanzu.vmware.com/workload-type: web
+    carto.run/cluster-template-name: deliverable-template
+    carto.run/resource-name: deliverable
+    carto.run/supply-chain-name: source-test-scan-to-url
+    carto.run/template-kind: ClusterTemplate
+    carto.run/workload-name: customer-profile
+    carto.run/workload-namespace: dev
+  name: customer-profile
+  namespace: default
+  resourceVersion: "12915117"
+  uid: d139e732-00f6-4468-b064-74136a1f792e
+spec:
+  params:
+  - name: gitops_ssh_secret
+    value: git-ssh
+  source:
+    git:
+      ref:
+        branch: main
+      url: https://github.com/dbuchko/tap-run-gitops.git
+    subPath: config/dev/customer-profile
+
+
+# kubectl get deliverable -A 
+# kubectl apply -f customer-profile-deliverable.yaml 
+# kubectl get deliverable customer-profile
+# kubectl get deliverable customer-profile -o YAML
+# kubectl get deliverables -A 
+# kubectl tree deliverable customer-profile 
+# kubectl delete deliverable customer-profile

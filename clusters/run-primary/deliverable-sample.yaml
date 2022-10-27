@@ -1,0 +1,28 @@
+apiVersion: carto.run/v1alpha1
+kind: Deliverable
+metadata:
+  namespace: default
+  name: tanzu-java-web-app
+  labels:
+    app.kubernetes.io/component: deliverable
+    app.kubernetes.io/part-of: tanzu-java-web-app
+    app.tanzu.vmware.com/deliverable-type: web
+spec:
+  params:
+  - name: gitops_ssh_secret
+    value: git-ssh
+  - name: gitops_sub_path
+    value: config/dev/tanzu-java-web-app
+  source:
+    git:
+      ref:
+        branch: main
+      url: "https://github.com/dbuchko/tap-run-gitops.git"
+      
+# kubectl get deliverable -A 
+# kubectl apply -f deliverable.yaml 
+# kubectl get deliverable tanzu-java-web-app 
+# kubectl get deliverable tanzu-java-web-app -o YAML
+# kubectl get deliverables -A 
+# kubectl tree deliverable tanzu-java-web-app 
+# kubectl delete deliverable tanzu-java-web-app 

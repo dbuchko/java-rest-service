@@ -1,0 +1,49 @@
+apiVersion: carto.run/v1alpha1
+kind: Workload
+metadata:
+  name: customer-profile
+  labels:
+    apps.tanzu.vmware.com/workload-type: web
+    app.kubernetes.io/part-of: customer-profile
+    apps.tanzu.vmware.com/has-tests: true
+    apis.apps.tanzu.vmware.com/register-api: "true"
+spec:
+  serviceClaims:
+    - name: db
+      ref:
+        apiVersion: sql.tanzu.vmware.com/v1
+        kind: Postgres
+        name: customer-profile-database
+  build:
+    env:
+      - name: BP_JVM_VERSION
+        value: "11"
+  params:
+    - name: annotations
+      value:
+        autoscaling.knative.dev/minScale: "1"
+    - name: api_descriptor
+      value:
+        type: openapi
+        location: 
+          path: "/api-docs"
+        owner: Dan
+        system: Genesis
+        description: Instantiates everything
+  source:
+    git:
+      ref:
+        branch: master
+      url: https://github.com/dbuchko/java-rest-service.git
+
+
+# kubectl apply -f ../../config/test-pipeline.yaml -n dev
+
+# tanzu apps workload list -n dev
+# tanzu apps workload create -f ../../config/java-rest-service-workload.yaml -n dev
+# tanzu apps workload update -f ../../config/java-rest-service-workload.yaml -n dev
+# tanzu apps workload get customer-profile -n dev
+# tanzu apps workload tail customer-profile -n dev --since 1h
+# tanzu apps workload delete customer-profile -n dev
+
+# kubectl tree workload customer-profile -n dev
