@@ -7,11 +7,9 @@ metadata:
     app.kubernetes.io/part-of: customer-profile
     apps.tanzu.vmware.com/has-tests: true
     apis.apps.tanzu.vmware.com/register-api: "true"
-  annotations:
-    serviceclaims.supplychain.apps.x-tanzu.vmware.com/extensions: '{"kind":"ServiceClaimsExtension","apiVersion":"supplychain.apps.x-tanzu.vmware.com/v1alpha1", "spec":   {"serviceClaims":{"db":{"namespace":"postgres-instances"}}}}'
 spec:
   serviceClaims:
-    - name: customer-profile-database
+    - name: db
       ref:
         apiVersion: services.apps.tanzu.vmware.com/v1alpha1
         kind: ResourceClaim
