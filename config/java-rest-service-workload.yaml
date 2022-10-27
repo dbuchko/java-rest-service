@@ -14,7 +14,7 @@ spec:
     - name: db
       ref:
         apiVersion: sql.tanzu.vmware.com/v1
-        kind: Postgres
+        kind: ResourceClaim
         name: customer-profile-database
   build:
     env:
