@@ -11,11 +11,11 @@ metadata:
     serviceclaims.supplychain.apps.x-tanzu.vmware.com/extensions: '{"kind":"ServiceClaimsExtension","apiVersion":"supplychain.apps.x-tanzu.vmware.com/v1alpha1", "spec":   {"serviceClaims":{"db":{"namespace":"postgres-instances"}}}}'
 spec:
   serviceClaims:
-    - name: db
+    - name: customer-profile-database
       ref:
         apiVersion: services.apps.tanzu.vmware.com/v1alpha1
         kind: ResourceClaim
-        name: customer-profile-db
+        name: customer-profile-database
   build:
     env:
       - name: BP_JVM_VERSION
