@@ -40,8 +40,8 @@ spec:
 # kubectl apply -f ../../config/test-pipeline.yaml -n dev
 
 # tanzu apps workload list -n dev
-# tanzu apps workload create -f ../../config/java-rest-service-workload.yaml -n dev
-# tanzu apps workload update -f ../../config/java-rest-service-workload.yaml -n dev
+# tanzu apps workload create -f ../../config/customer-profile-workload.yaml -n dev
+# tanzu apps workload update -f ../../config/customer-profile-workload.yaml -n dev
 # tanzu apps workload get customer-profile -n dev
 # tanzu apps workload tail customer-profile -n dev --since 1h
 # tanzu apps workload delete customer-profile -n dev

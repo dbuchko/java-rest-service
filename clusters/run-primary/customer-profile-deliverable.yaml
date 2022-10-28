@@ -1,11 +1,12 @@
 apiVersion: carto.run/v1alpha1
 kind: Deliverable
 metadata:
-  creationTimestamp: "2022-10-13T18:05:53Z"
+  creationTimestamp: "2022-10-27T21:05:26Z"
   generation: 1
   labels:
+    apis.apps.tanzu.vmware.com/register-api: "true"
     app.kubernetes.io/component: deliverable
-    app.kubernetes.io/part-of: tanzu-java-web-app
+    app.kubernetes.io/part-of: customer-profile
     app.tanzu.vmware.com/deliverable-type: web
     apps.tanzu.vmware.com/has-tests: "true"
     apps.tanzu.vmware.com/workload-type: web
@@ -13,12 +14,12 @@ metadata:
     carto.run/resource-name: deliverable
     carto.run/supply-chain-name: source-test-scan-to-url
     carto.run/template-kind: ClusterTemplate
-    carto.run/workload-name: tanzu-java-web-app
+    carto.run/workload-name: customer-profile
     carto.run/workload-namespace: dev
-  name: tanzu-java-web-app
+  name: customer-profile
   namespace: default
-  resourceVersion: "964820"
-  uid: 05aaf821-24f9-4c9e-ac78-3c034cd463d5
+  resourceVersion: "13565417"
+  uid: 80d1bdbc-db97-4cb9-8ece-57e3ad2227fd
 spec:
   params:
   - name: gitops_ssh_secret
@@ -28,4 +29,12 @@ spec:
       ref:
         branch: main
       url: https://github.com/dbuchko/tap-run-gitops.git
-    subPath: config/dev/tanzu-java-web-app
+    subPath: config/dev/customer-profile
+
+# kubectl get deliverable -A 
+# kubectl apply -f customer-profile-deliverable.yaml
+# kubectl get deliverable customer-profile -n dev
+# kubectl get deliverable customer-profile -o YAML -n dev
+# kubectl get deliverables -A 
+# kubectl tree deliverable customer-profile -n default
+# kubectl delete deliverable customer-profile -n default
