@@ -87,10 +87,13 @@ kubectl apply -f config/postgres.yaml
 
 The `workload.yaml` contains a reference to the PostgreSQL instance.
 
-> Note: if your postgres instance is in the same namespace as your developer namespace, change the `spec.serviceClaims.ref.apiVersion` to `sql.tanzu.vmware.com/v1`, the `spec.serviceClaims.ref.kind` to `Postgres` and remove the following from the workload.yaml:
-```metadata:
-       annotations:
-         serviceclaims.supplychain.apps.x-tanzu.vmware.com/extensions: '{"kind":"ServiceClaimsExtension","apiVersion":"supplychain.apps.x-tanzu.vmware.com/v1alpha1", "spec":   {"serviceClaims":{"db":{"namespace":"<database namespace>"}}}}'
+> Note: if your postgres instance is in the same namespace as your developer namespace, change the `spec.serviceClaims.ref.apiVersion` to `sql.tanzu.vmware.com/v1`, the `spec.serviceClaims.ref.kind` to `Postgres` in the workload.yaml, i.e.:
+```spec:
+  serviceClaims:
+    - name: db
+      ref:
+        apiVersion: sql.tanzu.vmware.com/v1
+        kind: Postgres
 ```
 
 Before deploying your application a Tekton Pipeline responsible for the testing step shall be created in your application
