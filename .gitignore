@@ -42,3 +42,6 @@ out/
 
 ### Credentials ###
 state
+
+### MacOS Finder ###
+.DS_Store
