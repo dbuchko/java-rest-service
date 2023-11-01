@@ -2,19 +2,20 @@ package com.example.customerprofile.domain;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class CustomerProfileCreateRequest {
-
-    private final String firstName;
-
-    private final String lastName;
+/**
+ * Request to update/change the customer profile. Only first and lastName can be changed.
+ */
+public class CustomerProfileChangeRequest {
 
     @NotBlank
-    private final String email;
+    private final String firstName;
 
-    public CustomerProfileCreateRequest(String firstName, String lastName, String email) {
+    @NotBlank
+    private final String lastName;
+
+    public CustomerProfileChangeRequest(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.email = email;
     }
 
     public String getFirstName() {
@@ -23,9 +24,5 @@ public class CustomerProfileCreateRequest {
 
     public String getLastName() {
         return lastName;
-    }
-
-    public String getEmail() {
-        return email;
     }
 }

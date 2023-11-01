@@ -1,4 +1,5 @@
 # Introduction customer-profile
+
 customer-profile provides you an out-of-the-box application setup to implement your business logic. It is based on the
 commonly known 3-layered application architecture in where the package `api` provides the presentation layer, `domain` provides 
 the services and business domain and finally the `data` package provides you the capability to persist your domain.
@@ -14,6 +15,7 @@ database. This example is intended to showcase best practices around using Sprin
 different types of tests which can be utilized to verify different parts of an application.
 
 ## Prerequisites
+
 In order to further develop this application the following tools needs to be setup:
 - Java Development Kit (https://bell-sw.com/)
 - Visual Studio Code or IntelliJ IDEA as Integrated Development Environment (IDE)
@@ -21,39 +23,52 @@ In order to further develop this application the following tools needs to be set
 - Docker Desktop to execute integration tests or run the application locally
 
 # Local
+
 ## Build
+
 In order to compile the production code:
+
 ```bash
 ./mvnw clean compile
 ```
 
 
+## Database
+
+You will need a local database running, see [DATABASE.md](DATABASE.md#local).
+
+## Run tests
+
 After that it is a good habit to compile the test classes and execute those tests to see if your application is still behaving as you would expect:
+
 ```bash
 ./mvnw verify
 ```
 
 
 ## Start and interact
+
 Spring Boot has its own integrated Web Server (Apache Tomcat (https://tomcat.apache.org/)). In order 
-to start the application a PostgreSQL instance should be running.
+to start the application a database instance should be running.
 
-Running a PostgreSQL instance can easily be done by using `docker-compose`:
+Launch application using a `docker-compose` database instance:
 ```bash
-docker-compose up -d
-```
-
-Launch application using profile `local`:
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+./mvnw spring-boot:run
 ```
 
 
 ### OpenApi Definition
+
+Set the env var `APP_URL` to the current URL you are using, e.g. `http://localhost:8080` when running a local server or the URL for the service when runing as a cloud workload.
+
+```bash
+export APP_URL=http://localhost:8080
+```
+
 You can access the API docs using `curl`:
 
 ```bash
-curl http://localhost:8080/api-docs  
+curl $APP_URL/api-docs  
 ```
 
 ### Create customer profile
@@ -61,67 +76,89 @@ curl http://localhost:8080/api-docs
 You can access the `customer-profiles` API endpoint using `curl`:
 
 ```bash
-curl -X POST -H 'Content-Type: application/json' http://localhost:8080/api/customer-profiles/ -d '{"firstName": "Joe", "lastName": "Doe", "email": "joe.doe@test.org"}'
+curl -X POST -H 'Content-Type: application/json' $APP_URL/api/customer-profiles -d '{"firstName": "Joe", "lastName": "Doe", "email": "joe.doe@test.org"}'
 ```
 
 ### Get customer profile
+
 Use the `id` received by previous POST call.
 ```bash
-curl -X GET http://localhost:8080/api/customer-profiles/{id}
+curl -X GET $APP_URL/api/customer-profiles/{id}
 ```
 
-# Deployment
+### Get all customer profiles
+
+```bash
+curl -X GET $APP_URL/api/customer-profiles/
+```
+
+### Update customer profile
+
+Use the `id` received by previous creation call.
+```bash
+curl -X PATCH -H 'Content-Type: application/json' $APP_URL/api/customer-profiles/{id} -d '{"firstName": "Jane", "lastName": "Little"}'
+```
+
+### Delete customer profile
+
+Use the `id` received by previous creation call.
+```bash
+curl -X DELETE $APP_URL/api/customer-profiles/{id}
+```
+
+# Cluster Deployment
+
+## Database
+
+You will need a database running in yur cluster, see [DATABASE.md](DATABASE.md#kubernetes).
+
 ## Tanzu Application Platform (TAP)
+
 Using the `config/workload.yaml` it is possible to build, test and deploy this application onto a
 Kubernetes cluster that is provisioned with Tanzu Application Platform (https://tanzu.vmware.com/application-platform).
 
-As with the local deployment a PostgreSQL instance needs to be available at the cluster.
-When using VMware Tanzu SQL with Postgres for Kubernetes (https://tanzu.vmware.com/sql and https://docs.vmware.com/en/VMware-Tanzu-SQL-with-Postgres-for-Kubernetes/index.html),
-one could apply for an instance, and it will be automatically provisioned.
+> The workload is set up by default to autoconfigure the actuators. This results in that the Spring Actuators are available at TCP port 8081 and will be used by Application Live View.
+> Application Live View allows you see all health metrics in the TAP GUI. If you would like to have the Actuators available at TCP port 8080 you can set the
+> annotation `apps.tanzu.vmware.com/auto-configure-actuators` to `false`.
 
-> Note: please define the storage class to be used for the PostgreSQL storage.
+### Test Pipeline
 
-```bash
-kubectl apply -f config/postgres.yaml
+Before deploying your application a Tekton Pipeline responsible for the testing step needs to be available in your application
+namespace. If your Namespace Provisioner includes a test pipeline for Java then you can rely on that, otherwise you would need to install a pipeline that is capable of building Maven or Gradle projects.
+
+#### Test Pipeline with support for TestContainers
+
+If you selected to use TestContainer for tests then a pipeline definition you can use is available in the Application Accelerators Samples [java-rest-service sample](https://raw.githubusercontent.com/vmware-tanzu/application-accelerator-samples/main/java-rest-service/config/testcontainers-test-pipeline.yaml).
+
+Once that is deployed you can select it by adding a param to the `workload.yaml`:
+
 ```
-
-The `workload.yaml` contains a reference to the PostgreSQL instance.
-
-> Note: if your postgres instance is in the same namespace as your developer namespace, change the `spec.serviceClaims.ref.apiVersion` to `sql.tanzu.vmware.com/v1`, the `spec.serviceClaims.ref.kind` to `Postgres` in the workload.yaml, i.e.:
-```spec:
-  serviceClaims:
-    - name: db
-      ref:
-        apiVersion: sql.tanzu.vmware.com/v1
-        kind: Postgres
+  params:
+    - name: testing_pipeline_matching_labels
+      value:
+        apps.tanzu.vmware.com/pipeline: testcontainers-java
 ```
-
-Before deploying your application a Tekton Pipeline responsible for the testing step shall be created in your application
-namespace. Please execute following command.
-
-```bash
-kubectl apply -f config/test-pipeline.yaml
-```
-
 
 ### Tanzu CLI
+
 Using the Tanzu CLI one could apply the workload using the local sources:
 ```bash
 tanzu apps workload apply \
   --file config/workload.yaml \
-  --namespace <namespace> --source-image <image-registry> \
+  --namespace <workload-namespace> \
   --local-path . \
   --yes \
   --tail
-````
+```
 
-Note: change the namespace to where you would like to deploy this workload. Also define the (private) image registry you
-are allowed to push the source-image, like: `docker.io/username/repository`.
+Note: change the namespace to where you would like to deploy this workload.
 
 ### Visual Studio Code Tanzu Plugin
+
 When developing local but would like to deploy the local code to the cluster the Tanzu Plugin could help.
 By using `Tanzu: Apply` on the `workload.yaml` it will create the Workload resource with the local source (pushed to an image registry) as
 starting point.
 
 # How to proceed from here?
+
 Having the application locally running and deployed to a cluster you could add your domain logic, related persistence and new RESTful controller.

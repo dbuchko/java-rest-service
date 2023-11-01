@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,7 +22,7 @@ public class CustomerProfileService {
     @Transactional
     public CustomerProfileResponse create(CustomerProfileCreateRequest dto) {
         var entity = new CustomerProfileEntity()
-                .setId(UUID.randomUUID())
+                .setId(UUID.randomUUID().toString())
                 .setFirstName(dto.getFirstName())
                 .setLastName(dto.getLastName())
                 .setEmail(dto.getEmail());
@@ -30,24 +31,34 @@ public class CustomerProfileService {
         return entityToDto(persistedEntity);
     }
 
-    public Optional<CustomerProfileResponse> getById(String idRepresentation) {
-        return safeConvertToUUID(idRepresentation)
-                .flatMap(repository::findById)
+    @Transactional
+    public Optional<CustomerProfileResponse> change(String id, CustomerProfileChangeRequest dto) {
+        return repository.findById(id)
+                .map(entity -> {
+                    entity.setFirstName(dto.getFirstName());
+                    entity.setLastName(dto.getLastName());
+                    return repository.save(entity);
+                })
                 .map(this::entityToDto);
     }
 
-    private Optional<UUID> safeConvertToUUID(String stringRepresentation) {
-        try {
-            return Optional.of(UUID.fromString(stringRepresentation));
-        }
-        catch (IllegalArgumentException ignorable) {
-            return Optional.empty();
-        }
+    @Transactional
+    public void delete(String id) {
+        repository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Stream<CustomerProfileResponse> getAll() {
+        return repository.streamAll().map(this::entityToDto);
+    }
+
+    public Optional<CustomerProfileResponse> getById(String idRepresentation) {
+        return repository.findById(idRepresentation).map(this::entityToDto);
     }
 
     private CustomerProfileResponse entityToDto(CustomerProfileEntity entity) {
         return new CustomerProfileResponse(
-                entity.getId().toString(),
+                entity.getId(),
                 entity.getFirstName(),
                 entity.getLastName(),
                 entity.getEmail());
